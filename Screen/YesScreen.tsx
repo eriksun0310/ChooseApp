@@ -60,7 +60,7 @@ const YesScreen = () => {
 
             <View style={styles.plusBtn}>
               {/* 按下加的時候 也要擋上一個有沒有填 */}
-              <IconButton onPress={addInput} size={50} color="#05a3ff" />
+              <IconButton onPress={addInput} size={50} />
             </View>
           </View>
         ) : (
