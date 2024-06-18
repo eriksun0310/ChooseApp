@@ -16,12 +16,14 @@ const Form = () => {
   const navigation = useNavigation();
   // 所有input 資料
   const [inputs, setInputs] = useState<Inputs[]>([{ id: uuidV4() }]);
+  
   //是否顯示form
   const [showForm, setShowForm] = useState(false);
 
   //是否顯示Go Btn
   const [showGo, setShowGo] = useState(false);
 
+  //是否新增input
   const [isNew, setIsNew] = useState(false);
 
   //關閉form
@@ -105,9 +107,6 @@ const Form = () => {
 
 export default Form;
 const styles = StyleSheet.create({
-  
-
- 
   content: {
     flex: 5,
     alignItems: "center",
