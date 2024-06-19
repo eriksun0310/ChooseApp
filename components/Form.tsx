@@ -1,41 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, ListRenderItemInfo } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  ListRenderItemInfo,
+  Animated,
+  LayoutAnimation,
+  Alert,
+} from "react-native";
 import IconButton from "./IconButton";
 import FormInput from "./FormInput";
 import { v4 as uuidV4 } from "uuid";
 import { useNavigation } from "@react-navigation/native";
 import Button from "../components/Button";
-interface Inputs {
+interface Input {
   id: string;
+  value: string;
+  isNew: boolean;
+  hasError: boolean;
 }
 
-interface InputItem {
-  id: string;
-}
+const initialInput = {
+  id: uuidV4(),
+  value: "",
+  isNew: false,
+  hasError: false,
+};
+
 const Form = () => {
   const navigation = useNavigation();
   // 所有input 資料
-  const [inputs, setInputs] = useState<Inputs[]>([{ id: uuidV4() }]);
-  
+  const [inputs, setInputs] = useState<Input[]>([initialInput]);
+
   //是否顯示form
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(true);
 
   //是否顯示Go Btn
   const [showGo, setShowGo] = useState(false);
 
-  //是否新增input
-  const [isNew, setIsNew] = useState(false);
+  //檢查是否有 任何的input 未填寫的
+  const isCheckEmptyInput = inputs.some(
+    (item) => item.hasError || item.value.trim() === ""
+  );
+
+  const fadeAnim = useRef(new Animated.Value(showForm ? 0 : 1)).current;
 
   //關閉form
   const onClose = () => {
-    setShowForm(false);
+    //配置下一次布局變化的動畫效果
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    //執行淡出動畫
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowForm(false);
+      //清空input 資料
+      setInputs([initialInput]);
+    });
   };
 
   // 增加input
   const addInput = () => {
+    //檢查現有的輸入框是否有未填寫的
+    let hasEmptyInput = false;
+    setInputs((prevInputs) => {
+      return prevInputs?.map((input) => {
+        if (input.value.trim() === "") {
+          hasEmptyInput = true;
+          return { ...input, hasError: true };
+        }
+        return { ...input, hasError: false };
+      });
+    });
+
+    // 如果有未填寫的input , 阻止新增操作
+    if (hasEmptyInput) {
+      Alert.alert("請填寫所有輸入框後再填加新的輸入框");
+      return;
+    }
+    // 新增輸入框
     const newID = uuidV4();
-    setIsNew(true);
-    setInputs((prev) => [...prev, { id: newID }]);
+    setInputs((prev) => [
+      ...prev,
+      { id: newID, value: "", isNew: true, hasError: false },
+    ]);
   };
 
   // 刪除input
@@ -43,20 +93,39 @@ const Form = () => {
     setInputs(inputs?.filter((item) => item.id !== id));
   };
 
+  //更新input 值
+  const updateInputValue = (id: string, value: string) => {
+    setInputs(
+      inputs.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            value,
+            hasError: value.trim() === "" && item.hasError,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
   //render 每個input
-  const renderInputItem = ({ item }: ListRenderItemInfo<InputItem>) => (
+  const renderInputItem = ({ item }: ListRenderItemInfo<Input>) => (
     <FormInput
       {...item}
+      updateInputValue={updateInputValue}
       deleteInput={deleteInput}
-      setShowGo={setShowGo}
-      isNew={isNew}
     />
   );
 
   //處理 如果沒有form, Go 按鈕則不出現
   useEffect(() => {
     if (showForm) {
-      setShowGo(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => setShowGo(true));
     } else {
       setShowGo(false);
     }
@@ -65,7 +134,7 @@ const Form = () => {
     <>
       <View style={styles.content}>
         {showForm ? (
-          <View style={styles.form}>
+          <Animated.View style={[styles.form, { opacity: fadeAnim }]}>
             <View style={styles.closeBtnContainer}>
               <IconButton
                 onPress={onClose}
@@ -86,7 +155,7 @@ const Form = () => {
               {/* 按下加的時候 也要擋上一個有沒有填 */}
               <IconButton onPress={addInput} size={50} />
             </View>
-          </View>
+          </Animated.View>
         ) : (
           <IconButton onPress={() => setShowForm(true)} />
         )}
@@ -97,7 +166,13 @@ const Form = () => {
           <Button
             text="GO!"
             color="#B5EEA7"
-            onPress={() => navigation.navigate("Roulette")}
+            onPress={() => {
+              if (isCheckEmptyInput) {
+                Alert.alert("請填寫所有輸入框後再按下Go!");
+              } else {
+                navigation.navigate("Roulette");
+              }
+            }}
           />
         )}
       </View>
@@ -119,6 +194,7 @@ const styles = StyleSheet.create({
   },
 
   form: {
+    flex: 1,
     position: "relative",
     padding: 10,
     backgroundColor: "#D6F5FF",

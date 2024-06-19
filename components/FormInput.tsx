@@ -19,34 +19,32 @@ if (
 }
 interface FormInputProps {
   id: string;
-  deleteInput: (v: string) => void;
-  setShowGo: React.Dispatch<React.SetStateAction<boolean>>;
   isNew: boolean;
+  hasError: boolean;
+  value: string;
+  updateInputValue: (id: string, value: string) => void;
+  deleteInput: (v: string) => void;
 }
 
 const FormInput: FC<FormInputProps> = ({
   id,
   isNew,
+  hasError,
+  value,
   deleteInput,
-  setShowGo,
+  updateInputValue,
 }) => {
   const fadeAnim = useRef(new Animated.Value(isNew ? 0 : 1)).current;
 
-  const handleFocus = () => {
-    setShowGo(false);
-  };
-
-  const handleBlur = () => {
-    setShowGo(true);
-  };
-
   const handleDelete = () => {
+    //配置下一次布局變化的動畫效果
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    //執行淡出動畫
     Animated.timing(fadeAnim, {
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
-    }).start(() => deleteInput(id));
+    }).start(() => deleteInput(id)); // 動畫結束後刪除輸入框
   };
 
   useEffect(() => {
@@ -59,23 +57,14 @@ const FormInput: FC<FormInputProps> = ({
     }
   }, [isNew]);
 
-  useEffect(() => {
-    return () => {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 0,
-        useNativeDriver: true,
-      }).start();
-    };
-  }, []);
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <TextInput
         key={id}
-        style={styles.input}
+        style={[styles.input, hasError && { borderColor: "red" }]}
         placeholder="請輸入"
-        onFocus={handleFocus}
-        onBlur={handleBlur}
+        value={value}
+        onChangeText={(text) => updateInputValue(id, text)}
       />
       <FontAwesome
         name="trash-o"
