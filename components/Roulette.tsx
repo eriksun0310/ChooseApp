@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    top: 45,
+    top: '53%',
     backgroundColor: "#ffffff",
     // borderRadius: 50,
     // paddingTop: 50,
