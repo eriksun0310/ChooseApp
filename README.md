@@ -15,7 +15,7 @@
 2. inputs 資料用redux 記
 3. 選項要是"雙數", 如果不是單數, 可以考慮用,再轉一次補到雙數
 4. 彈出來的modal 可以用  rn element dialog
-
+參考:https://lifuzhen.github.io/2019/06/22/react%E5%AE%9E%E7%8E%B0%E6%8A%BD%E5%A5%96%E5%A4%A7%E8%BD%AC%E7%9B%98/
 
 
 > 動畫效果
