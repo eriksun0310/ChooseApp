@@ -78,11 +78,13 @@ const Roulette = () => {
 
   return (
     <View style={styles.container}>
-     <View style={{
-        marginTop:30
-      }}>
+      <View
+        style={{
+          marginTop: 30,
+        }}
+      >
         <Svg width="30" height="30" viewBox="0 0 10 10">
-          <Polygon points="5,10 0, 0 10,0" fill="blue" />
+          <Polygon points="5,10 0, 0 10,0" fill="#ff5f1a" />
         </Svg>
       </View>
       <View style={styles.wheelContainer}>
@@ -105,14 +107,13 @@ const Roulette = () => {
               cx="150"
               cy="150"
               r="40"
-              fill="white"
-              stroke="black"
-              strokeWidth="2"
+              fill="#ff5f1a"
+              stroke="white"
+              strokeWidth="5"
             />
           </Svg>
         </Animated.View>
       </View>
-      
 
       <TouchableOpacity onPress={startSpinning} style={styles.button}>
         <RNText style={styles.buttonText}>開始</RNText>
@@ -135,13 +136,13 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    top: '53%',
-    backgroundColor: "#ffffff",
+    top: "53%",
+    // backgroundColor: "#ffffff",
     // borderRadius: 50,
     // paddingTop: 50,
   },
   buttonText: {
-    color: "#000",
+    color: "#ffffff",
     fontSize: 18,
 
     fontWeight: "bold",
