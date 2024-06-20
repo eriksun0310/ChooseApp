@@ -27,22 +27,20 @@
 <img src="assets/YesScreen.jpg" alt="YesScreen" width="450" height="800">
 
 ## 填入選項
-![Logo](assets/Input.jpg)
+<img src="assets/YesScreen.jpg" alt="Input" width="450" height="800">
 
 
 ## 點下 [ + ] 選項,如果上面的選項有沒有填到的,則會跳出提示
-![inputRule](assets/InputRule.jpg)
+<img src="assets/InputRule.jpg" alt="InputRule" width="450" height="800">
 
 ## 點下 [ Go! ] ,如果上面的選項有沒有填到的,則會跳出提示
-![GoRule](assets/GoRule.jpg)
+
+<img src="assets/GoRule.jpg" alt="GoRule" width="450" height="800">
 
 ## 點下 [ Go! ] 進入 輪盤頁面, 按下 [ 開始 ] 就開始轉動輪盤!
-![GoRule](assets/RouletteScreen.jpg)
-
+<img src="assets/RouletteScreen.jpg" alt="RouletteScreen" width="450" height="800">
 
 
 ## 輪盤停下來, 就會跳出 選中的那個!
-![GoRule](assets/Dialog.jpg)
-
-
+<img src="assets/Dialog.jpg" alt="Dialog" width="450" height="800">
 
