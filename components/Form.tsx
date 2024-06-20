@@ -157,10 +157,14 @@ const Form = () => {
             text="GO!"
             color="#B5EEA7"
             onPress={() => {
-              if (isCheckEmptyInput) {
-                Alert.alert("請填寫所有輸入框後再按下Go!");
-              } else {
-                navigation.navigate("Roulette");
+              if (inputs.length > 1) {
+                if (isCheckEmptyInput) {
+                  Alert.alert("請填寫所有輸入框後再按下Go!");
+                } else {
+                  navigation.navigate("Roulette");
+                }
+              }else{
+                Alert.alert("選項不能小於2");
               }
             }}
           />

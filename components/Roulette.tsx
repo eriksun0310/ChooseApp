@@ -9,7 +9,8 @@ import {
 import Svg, { Circle, G, Text, Path, Polygon } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { Dialog } from "react-native-elements";
+
+import { Dialog } from "@rneui/themed";
 import Button from "./Button";
 import { useNavigation } from "@react-navigation/native";
 import { clearInputs } from "../store/wheelSlice";
@@ -147,8 +148,8 @@ const Roulette: FC = () => {
               text="重新輸入"
               color="#D6F5FF"
               onPress={() => {
-                setShowDialog(false);
                 dispatch(clearInputs());
+                setShowDialog(false);
                 setTimeout(() => {
                   navigation.navigate("Yes");
                 }, 0);
