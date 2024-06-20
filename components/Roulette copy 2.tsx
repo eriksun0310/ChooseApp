@@ -1,134 +1,135 @@
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  TouchableOpacity,
-  Text as RNText,
-} from 'react-native';
-import Svg, { Circle, G, Text, Path, Polygon } from 'react-native-svg';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
+import { Svg, G, Path, Text as SvgText } from 'react-native-svg';
+import { Easing } from 'react-native-reanimated';
 
-const Roulette = () => {
-  const awards = [
-    { id: 1, name: '一等奖', level: '1', color: '#FFC200' },
-    { id: 2, name: '二等奖', level: '2', color: '#FFE122' },
-    { id: 3, name: '三等奖', level: '3', color: '#FFC200' },
-    { id: 4, name: '四等奖', level: '4', color: '#FFE122' },
-    { id: 5, name: '五等奖', level: '5', color: '#FFC200' },
-    { id: 6, name: '六等奖', level: '6', color: '#FFE122' },
-  ];
+const App = () => {
+  const [segments, setSegments] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const wheelRef = useRef(null);
 
-  const wheelRadius = 150;
-  const [rotateValue] = useState(new Animated.Value(0));
-  const [isSpinning, setIsSpinning] = useState(false);
-
-  const startSpin = () => {
-    if (isSpinning) return;
-
-    setIsSpinning(true);
-    const randomIndex = Math.floor(Math.random() * awards.length);
-    const selectedAngle = (randomIndex * (360 / awards.length)) + 360 * 3; // 多轉幾圈
-
-    Animated.timing(rotateValue, {
-      toValue: selectedAngle,
-      duration: 3000,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsSpinning(false);
-    });
+  const addSegment = () => {
+    if (inputText) {
+      setSegments([...segments, inputText]);
+      setInputText('');
+    }
   };
 
-  const renderWheelItems = () => {
-    const angleByItem = (2 * Math.PI) / awards.length;
+  const spinWheel = () => {
+    if (spinning || segments.length === 0) return;
+    setSpinning(true);
+    const randomDegree = Math.floor(Math.random() * 360) + 360 * 3; // At least 3 full rotations
+    setRotation(randomDegree);
 
-    return awards.map((item, index) => {
-      const startAngle = index * angleByItem;
-      const endAngle = startAngle + angleByItem;
-
-      const path = [
-        `M ${wheelRadius} ${wheelRadius}`,
-        `L ${wheelRadius + wheelRadius * Math.cos(startAngle)} ${wheelRadius + wheelRadius * Math.sin(startAngle)}`,
-        `A ${wheelRadius} ${wheelRadius} 0 0 1 ${wheelRadius + wheelRadius * Math.cos(endAngle)} ${wheelRadius + wheelRadius * Math.sin(endAngle)}`,
-        'Z',
-      ].join(' ');
-
-      const textAngle = startAngle + angleByItem / 2;
-      const textX = wheelRadius + (wheelRadius - 40) * Math.cos(textAngle);
-      const textY = wheelRadius + (wheelRadius - 40) * Math.sin(textAngle);
-
-      return (
-        <G key={index}>
-          <Path d={path} fill={item.color} />
-          <Text
-            x={textX}
-            y={textY}
-            fill="black"
-            fontSize="16"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-            transform={`rotate(${(textAngle * 180) / Math.PI}, ${textX}, ${textY})`}
-          >
-            {item.name}
-          </Text>
-        </G>
-      );
-    });
+    setTimeout(() => {
+      const winningIndex = Math.floor(((randomDegree % 360) / 360) * segments.length);
+      Alert.alert(`恭喜！您贏得了: ${segments[winningIndex]}`);
+      setSpinning(false);
+    }, 3000); // Duration should match the CSS animation duration
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.pointerContainer}>
-        <Svg width="20" height="20" viewBox="0 0 10 10">
-          <Polygon points="5,0 10,10 0,10" fill="blue" />
+      <FlatList
+        data={segments}
+        renderItem={({ item }) => <Text style={styles.segment}>{item}</Text>}
+        keyExtractor={(item, index) => index.toString()}
+      />
+      <TextInput
+        style={styles.input}
+        value={inputText}
+        onChangeText={setInputText}
+        placeholder="輸入轉盤品項"
+      />
+      <TouchableOpacity onPress={addSegment} style={styles.addButton}>
+        <Text style={styles.addButtonText}>增加品項</Text>
+      </TouchableOpacity>
+      <View style={styles.wheelContainer}>
+        <Svg width={300} height={300} viewBox="0 0 100 100">
+          <G transform={`rotate(${rotation}, 50, 50)`}>
+            {segments.map((segment, index) => {
+              const angle = 360 / segments.length;
+              const startAngle = index * angle;
+              const endAngle = startAngle + angle;
+              const largeArcFlag = angle > 180 ? 1 : 0;
+
+              const start = polarToCartesian(50, 50, 40, endAngle);
+              const end = polarToCartesian(50, 50, 40, startAngle);
+
+              const pathData = [
+                `M 50 50`,
+                `L ${start.x} ${start.y}`,
+                `A 40 40 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+                `Z`
+              ].join(' ');
+
+              return (
+                <Path key={index} d={pathData} fill={index % 2 === 0 ? '#FFC200' : '#FFE122'} />
+              );
+            })}
+          </G>
         </Svg>
       </View>
-      <Animated.View
-        style={{
-          transform: [
-            {
-              rotate: rotateValue.interpolate({
-                inputRange: [0, 360],
-                outputRange: ['0deg', '360deg'],
-              }),
-            },
-          ],
-        }}
-      >
-        <Svg width="300" height="300" viewBox="0 0 300 300">
-          {/* <Circle cx="150" cy="150" r="150" fill="lightgray" stroke="black" strokeWidth="2" /> */}
-          {renderWheelItems()}
-          {/* <Circle cx="150" cy="150" r="40" fill="white" stroke="black" strokeWidth="2" /> */}
-    
-        </Svg>
-      </Animated.View>
-      <TouchableOpacity style={styles.button} onPress={startSpin} disabled={isSpinning}>
-        <RNText style={styles.buttonText}>開始</RNText>
+      <TouchableOpacity onPress={spinWheel} style={styles.spinButton} disabled={spinning}>
+        <Text style={styles.spinButtonText}>開始</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export default Roulette;
+const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+  return {
+    x: centerX + radius * Math.cos(angleInRadians),
+    y: centerY + radius * Math.sin(angleInRadians),
+  };
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 16,
   },
-  pointerContainer: {
-    position: 'absolute',
-    top: '35%',
-    zIndex: 1,
+  input: {
+    height: 40,
+    borderColor: '#000',
+    borderWidth: 1,
+    marginBottom: 16,
+    paddingHorizontal: 8,
+    width: '80%',
   },
-  button: {
-    marginTop: 20,
+  addButton: {
+    backgroundColor: '#007bff',
     padding: 10,
-    backgroundColor: 'blue',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  wheelContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  spinButton: {
+    backgroundColor: '#28a745',
+    padding: 10,
     borderRadius: 5,
   },
-  buttonText: {
-    color: 'white',
+  spinButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  segment: {
     fontSize: 18,
+    padding: 5,
   },
 });
+
+export default App;

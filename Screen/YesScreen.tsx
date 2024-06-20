@@ -9,7 +9,6 @@ const YesScreen = () => {
       <View style={styles.header}>
         <Text style={styles.title}>填入你想吃的！</Text>
       </View>
-
       <Form />
     </View>
   );

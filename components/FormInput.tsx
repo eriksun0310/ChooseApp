@@ -10,6 +10,8 @@ import {
 } from "react-native";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useDispatch } from "react-redux";
+import { deleteInput, updateInput } from "../store/wheelSlice";
 
 if (
   Platform.OS === "android" &&
@@ -22,18 +24,10 @@ interface FormInputProps {
   isNew: boolean;
   hasError: boolean;
   value: string;
-  updateInputValue: (id: string, value: string) => void;
-  deleteInput: (v: string) => void;
 }
 
-const FormInput: FC<FormInputProps> = ({
-  id,
-  isNew,
-  hasError,
-  value,
-  deleteInput,
-  updateInputValue,
-}) => {
+const FormInput: FC<FormInputProps> = ({ id, isNew, hasError, value }) => {
+  const dispatch = useDispatch();
   const fadeAnim = useRef(new Animated.Value(isNew ? 0 : 1)).current;
 
   const handleDelete = () => {
@@ -44,7 +38,17 @@ const FormInput: FC<FormInputProps> = ({
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
-    }).start(() => deleteInput(id)); // 動畫結束後刪除輸入框
+    }).start(() => dispatch(deleteInput(id))); // 動畫結束後刪除輸入框
+  };
+
+  const handleUpdate = (text: string) => {
+    dispatch(
+      updateInput({
+        id,
+        value: text,
+        hasError: text.trim() === "",
+      })
+    );
   };
 
   useEffect(() => {
@@ -64,7 +68,7 @@ const FormInput: FC<FormInputProps> = ({
         style={[styles.input, hasError && { borderColor: "red" }]}
         placeholder="請輸入"
         value={value}
-        onChangeText={(text) => updateInputValue(id, text)}
+        onChangeText={(text) => handleUpdate(text)}
       />
       <FontAwesome
         name="trash-o"

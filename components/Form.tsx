@@ -13,6 +13,9 @@ import FormInput from "./FormInput";
 import { v4 as uuidV4 } from "uuid";
 import { useNavigation } from "@react-navigation/native";
 import Button from "../components/Button";
+import { useDispatch, useSelector } from "react-redux";
+import { addInput, clearInputs, updateInput } from "../store/wheelSlice";
+import { RootState } from "../store/store";
 interface Input {
   id: string;
   value: string;
@@ -29,8 +32,9 @@ const initialInput = {
 
 const Form = () => {
   const navigation = useNavigation();
-  // 所有input 資料
-  const [inputs, setInputs] = useState<Input[]>([initialInput]);
+
+  const dispatch = useDispatch();
+  const inputs = useSelector((state:RootState) => state.wheel.inputs);
 
   //是否顯示form
   const [showForm, setShowForm] = useState(true);
@@ -56,23 +60,38 @@ const Form = () => {
       useNativeDriver: true,
     }).start(() => {
       setShowForm(false);
-      //清空input 資料
-      setInputs([initialInput]);
+      //清空inputs 資料
+      dispatch(clearInputs());
     });
   };
 
   // 增加input
-  const addInput = () => {
+  const addInputHandle = () => {
     //檢查現有的輸入框是否有未填寫的
     let hasEmptyInput = false;
-    setInputs((prevInputs) => {
-      return prevInputs?.map((input) => {
-        if (input.value.trim() === "") {
-          hasEmptyInput = true;
-          return { ...input, hasError: true };
-        }
-        return { ...input, hasError: false };
-      });
+
+    inputs.forEach((input) => {
+      console.log("input", input);
+      if (input.value.trim() === "") {
+        hasEmptyInput = true;
+        dispatch(
+          updateInput({
+            id: input.id,
+            value: input.value,
+            hasError: true,
+            // isNew: false,
+          })
+        );
+      } else {
+        dispatch(
+          updateInput({
+            id: input.id,
+            value: input.value,
+            hasError: false,
+            // isNew: false,
+          })
+        );
+      }
     });
 
     // 如果有未填寫的input , 阻止新增操作
@@ -82,40 +101,13 @@ const Form = () => {
     }
     // 新增輸入框
     const newID = uuidV4();
-    setInputs((prev) => [
-      ...prev,
-      { id: newID, value: "", isNew: true, hasError: false },
-    ]);
-  };
-
-  // 刪除input
-  const deleteInput = (id: string) => {
-    setInputs(inputs?.filter((item) => item.id !== id));
-  };
-
-  //更新input 值
-  const updateInputValue = (id: string, value: string) => {
-    setInputs(
-      inputs.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            value,
-            hasError: value.trim() === "" && item.hasError,
-          };
-        }
-        return item;
-      })
-    );
+    const newInput = { id: newID, value: "", isNew: true, hasError: false };
+    dispatch(addInput(newInput));
   };
 
   //render 每個input
   const renderInputItem = ({ item }: ListRenderItemInfo<Input>) => (
-    <FormInput
-      {...item}
-      updateInputValue={updateInputValue}
-      deleteInput={deleteInput}
-    />
+    <FormInput {...item} />
   );
 
   //處理 如果沒有form, Go 按鈕則不出現
@@ -153,7 +145,7 @@ const Form = () => {
 
             <View style={styles.plusBtnContainer}>
               {/* 按下加的時候 也要擋上一個有沒有填 */}
-              <IconButton onPress={addInput} size={50} />
+              <IconButton onPress={addInputHandle} size={50} />
             </View>
           </Animated.View>
         ) : (
