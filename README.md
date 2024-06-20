@@ -16,13 +16,15 @@
 
 
 ## 首頁
-![HomeScreen](assets/HomeScreen.jpg)
+<img src="assets/HomeScreen.jpg" alt="Home Screen" width="450" height="800">
 
 ## 點下 [ NO! ] 按鈕 
-![NoScreen](assets/NoScreen.jpg)
+<!-- ![NoScreen](assets/NoScreen.jpg) -->
+<img src="assets/NoScreen.jpg" alt="NoScreen" width="450" height="800">
 
 ## 點下 [ YES! ] 按鈕 
-![YesScreen](assets/YesScreen.jpg)
+<!-- ![YesScreen](assets/YesScreen.jpg) -->
+<img src="assets/YesScreen.jpg" alt="YesScreen" width="450" height="800">
 
 ## 填入選項
 ![Logo](assets/Input.jpg)
