@@ -1,24 +1,46 @@
-# ChooseApp
+# 選擇障礙神器 ChooseApp
+### 還在選擇障礙嗎? 
+### 那就快來使用 【選擇障礙神器】, 這是一款可以幫你決定任何東西的App!
 
->要做的還沒做
-1. ~~新增input 的時候, 檢查上一個有沒有填並跳提醒~~
-2. ~~按下form  go 的時候要擋 所有 input 有沒有填並跳提醒~~
-3. 輪盤頁面
-4. 彈出來的modal 可以用  rn element dialog
-5. ~~新增、關閉 form 的 動畫處理~~
-6. ~~新增、刪除 input 的 動畫處理~~
-7. ~~按下 form 的關閉 視覺上看起來怪怪的~~
-8. ~~YesScreen 可以拆開成 form component~~
 
->輪盤邏輯、可能會遇到的問題
-1. 選項必須是1 個以上, (按下Go要 檢查的條件)
-2. inputs 資料用redux 記
-3. 選項要是"雙數", 如果不是單數, 可以考慮用,再轉一次補到雙數
-4. 彈出來的modal 可以用  rn element dialog
-參考:https://lifuzhen.github.io/2019/06/22/react%E5%AE%9E%E7%8E%B0%E6%8A%BD%E5%A5%96%E5%A4%A7%E8%BD%AC%E7%9B%98/
-
+>專案使用到的工具
+1. Redux Toolkit 
+2. React Native Elements
 
 > 動畫效果
-1. 新增 關閉form 的動畫 處理
-2. 新增 刪除input 的動畫處理
+1. 首頁 打字機 效果
+2. 首頁 YES!、NO! 彈跳效果
+3. 新增 刪除input 的 淡入淡出 效果
+4. 新增 關閉form 的 淡入淡出 效果
+5. 輪盤 的 旋轉效果
+
+
+## 首頁
+![HomeScreen](assets/HomeScreen.jpg)
+
+## 點下 [ NO! ] 按鈕 
+![NoScreen](assets/NoScreen.jpg)
+
+## 點下 [ YES! ] 按鈕 
+![YesScreen](assets/YesScreen.jpg)
+
+## 填入選項
+![Logo](assets/Input.jpg)
+
+
+## 點下 [ + ] 選項,如果上面的選項有沒有填到的,則會跳出提示
+![inputRule](assets/InputRule.jpg)
+
+## 點下 [ Go! ] ,如果上面的選項有沒有填到的,則會跳出提示
+![GoRule](assets/GoRule.jpg)
+
+## 點下 [ Go! ] 進入 輪盤頁面, 按下 [ 開始 ] 就開始轉動輪盤!
+![GoRule](assets/RouletteScreen.jpg)
+
+
+
+## 輪盤停下來, 就會跳出 選中的那個!
+![GoRule](assets/Dialog.jpg)
+
+
 
