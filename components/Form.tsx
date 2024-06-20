@@ -34,7 +34,7 @@ const Form = () => {
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
-  const inputs = useSelector((state:RootState) => state.wheel.inputs);
+  const inputs = useSelector((state: RootState) => state.wheel.inputs);
 
   //是否顯示form
   const [showForm, setShowForm] = useState(true);
@@ -79,7 +79,6 @@ const Form = () => {
             id: input.id,
             value: input.value,
             hasError: true,
-            // isNew: false,
           })
         );
       } else {
@@ -88,7 +87,6 @@ const Form = () => {
             id: input.id,
             value: input.value,
             hasError: false,
-            // isNew: false,
           })
         );
       }
@@ -175,7 +173,7 @@ const Form = () => {
 export default Form;
 const styles = StyleSheet.create({
   content: {
-    flex: 5,
+    flex: 2,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -194,6 +192,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     width: 350,
     height: 600,
+    marginTop: 80,
   },
   closeBtnContainer: {
     position: "absolute",

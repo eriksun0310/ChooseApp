@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 40,
+    height: 55,
+    fontSize:20,
     marginHorizontal: 6,
     borderWidth: 1,
     padding: 10,

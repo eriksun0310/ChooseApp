@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, FC } from "react";
 import {
   View,
   StyleSheet,
@@ -7,42 +7,98 @@ import {
   Text as RNText,
 } from "react-native";
 import Svg, { Circle, G, Text, Path, Polygon } from "react-native-svg";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { Dialog } from "react-native-elements";
+import Button from "./Button";
+import { useNavigation } from "@react-navigation/native";
+import { clearInputs } from "../store/wheelSlice";
 
-const Roulette = () => {
-  const [awards, setAwards] = useState([
-    { id: 1, name: "一等奖", level: "1", color: "#FFC200" },
-    { id: 2, name: "二等奖", level: "2", color: "#FFE122" },
-    { id: 3, name: "三等奖", level: "3", color: "#FFC200" },
-    { id: 4, name: "四等奖", level: "4", color: "#FFE122" },
-    { id: 5, name: "五等奖", level: "5", color: "#FFC200" },
-    { id: 6, name: "六等奖", level: "6", color: "#FFE122" },
-  ]);
+const Roulette: FC = () => {
+  const navigation = useNavigation();
 
+  const dispatch = useDispatch();
+  const inputs = useSelector((state: RootState) => state.wheel.inputs);
+  // 顯示dialog
+  const [showDialog, setShowDialog] = useState(false);
+  // 選中的選項
+  const [selectedAward, setSelectedAward] = useState("");
+
+  //用來追蹤是否正在旋轉
+  const [isSpinning, setIsSpinning] = useState(false);
+
+  //檢查 inputs 的數量並在需要時添加'再轉一次'選項(如果inputs 的選項為單數時)
+  const adjustedInputs = [...inputs];
+  if (adjustedInputs.length % 2 !== 0) {
+    adjustedInputs.push({
+      id: "reroll",
+      value: "再轉一次",
+      isNew: false,
+      hasError: false,
+    });
+  }
+
+  // 轉盤選項
+  const awards = adjustedInputs.map((input, index) => ({
+    id: index + 1,
+    name: input.value,
+    level: `${index + 1}`,
+    color: index % 2 === 0 ? "#FFC200" : "#FFE122",
+  }));
+
+  //轉盤相關設置
   const wheelRadius = 150;
   const [rotateValue] = useState(new Animated.Value(0));
   const rotateRef = useRef(rotateValue);
 
+  //開始旋轉方法
   const startSpinning = () => {
-    const randomValue = Math.floor(Math.random() * 360) + 360 * 5;
+    // 防止重複點擊 '開始'
+    if (isSpinning) return;
+
+    setIsSpinning(true); // 設置為旋轉中
+
+    // 旋轉的隨機值 1800-2159之間隨機整數(* 5 轉5圈的意思)
+    const randomValue = Math.floor(Math.random() * 360) + 360 * 10;
+
     Animated.timing(rotateRef.current, {
       toValue: randomValue,
       duration: 3000,
       useNativeDriver: true,
     }).start(() => {
-      rotateRef.current.setValue(randomValue % 360);
+      const finalAngle = randomValue % 360;
+      rotateRef.current.setValue(finalAngle);
+      // 計算最終停在哪個選項
+      const selectedAwardIndex = Math.floor(
+        (360 - finalAngle) / (360 / awards.length)
+      );
+
+      setSelectedAward(awards[selectedAwardIndex].name);
+      // show dialog
+      setTimeout(() => {
+        setShowDialog(true);
+        //旋轉結束後重置
+        setIsSpinning(false);
+      }, 300);
     });
   };
 
   const renderWheelItems = () => {
+    //設置轉盤的起始角度
     const startRadian = -Math.PI / 2;
+    //每個獎項所佔的角度
     const RadianGap = (2 * Math.PI) / awards.length;
+    // 當前角度
     let currentRadian = startRadian;
 
     return awards.map((item, index) => {
+      //每個獎項的結束角度
       const endRadian = currentRadian + RadianGap;
       const largeArcFlag = endRadian - currentRadian <= Math.PI ? "0" : "1";
+      // x1 、y1 起始點座標
       const x1 = wheelRadius + wheelRadius * Math.cos(currentRadian);
       const y1 = wheelRadius + wheelRadius * Math.sin(currentRadian);
+      // x2、y2 結束點座標
       const x2 = wheelRadius + wheelRadius * Math.cos(endRadian);
       const y2 = wheelRadius + wheelRadius * Math.sin(endRadian);
 
@@ -78,12 +134,48 @@ const Roulette = () => {
 
   return (
     <View style={styles.container}>
+      <View>
+        <Dialog overlayStyle={styles.dialog} isVisible={showDialog}>
+          <Dialog.Title title="恭喜!" titleStyle={styles.dialogTitle} />
+
+          <View style={styles.dialogContent}>
+            <RNText style={styles.dialogText}>抽中【{selectedAward}】！</RNText>
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <Button
+              text="重新輸入"
+              color="#D6F5FF"
+              onPress={() => {
+                setShowDialog(false);
+                dispatch(clearInputs());
+                setTimeout(() => {
+                  navigation.navigate("Yes");
+                }, 0);
+              }}
+            />
+
+            <Button
+              text="再轉一次"
+              color="#B5EEA7"
+              onPress={() => {
+                setShowDialog(false);
+                setTimeout(() => {
+                  startSpinning();
+                }, 0);
+              }}
+            />
+          </View>
+        </Dialog>
+      </View>
+
+      {/* 箭頭 */}
       <View
         style={{
           marginTop: 30,
         }}
       >
-        <Svg width="30" height="30" viewBox="0 0 10 10">
+        <Svg width="45" height="45" viewBox="0 0 10 10">
           <Polygon points="5,10 0, 0 10,0" fill="#ff5f1a" />
         </Svg>
       </View>
@@ -93,6 +185,7 @@ const Roulette = () => {
             transform: [
               {
                 rotate: rotateRef.current.interpolate({
+                  //動畫值範圍
                   inputRange: [0, 360],
                   outputRange: ["0deg", "360deg"],
                 }),
@@ -100,7 +193,7 @@ const Roulette = () => {
             ],
           }}
         >
-          <Svg width="300" height="300" viewBox="0 0 300 300">
+          <Svg width="380" height="380" viewBox="0 0 300 300">
             {renderWheelItems()}
 
             <Circle
@@ -114,8 +207,11 @@ const Roulette = () => {
           </Svg>
         </Animated.View>
       </View>
-
-      <TouchableOpacity onPress={startSpinning} style={styles.button}>
+      <TouchableOpacity
+        onPress={startSpinning}
+        style={styles.button}
+        disabled={isSpinning}
+      >
         <RNText style={styles.buttonText}>開始</RNText>
       </TouchableOpacity>
     </View>
@@ -126,6 +222,7 @@ export default Roulette;
 
 const styles = StyleSheet.create({
   container: {
+    position: "relative",
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -136,21 +233,75 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    top: "53%",
-    // backgroundColor: "#ffffff",
-    // borderRadius: 50,
-    // paddingTop: 50,
+    top: "54%",
   },
   buttonText: {
     color: "#ffffff",
-    fontSize: 18,
-
+    fontSize: 28,
     fontWeight: "bold",
   },
-
   pointerContainer: {
     position: "absolute",
     top: 0,
     zIndex: 1,
+  },
+
+  dialog: {
+    borderWidth: 10,
+    borderColor: "#8FFF00",
+    width: 400,
+  },
+  dialogTitle: {
+    top: -50,
+    backgroundColor: "#FF8C8C",
+    color: "#fff",
+    textAlign: "center",
+    paddingVertical: 14,
+    marginBottom: -25,
+    marginHorizontal: 60,
+    fontSize: 30,
+  },
+
+  dialogContent: {
+    backgroundColor: "#FFE4BA",
+    height: 150,
+
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    borderRadius: 10,
+  },
+
+  dialogText: {
+    color: "#000",
+    fontSize: 30,
+  },
+
+  dialogTitleView: {
+    backgroundColor: "#FF8C8C",
+  },
+
+  dialogTextView: {
+    backgroundColor: "#FFE4BA",
+  },
+
+  buttonContainer: {
+    flex: 1,
+    flexDirection: "row",
+    position: "relative",
+    // bottom:20
+    top: 50,
+    // marginTop:300
+    // display: "flex",
+    // alignItems:'center',
+    // justifyContent: "flex-end",
+    justifyContent: "center",
+    // padding: 10,
+  },
+
+  dialogButtonText: {
+    color: "#000",
+    // paddingHorizontal: 10,
+    fontSize: 24,
   },
 });

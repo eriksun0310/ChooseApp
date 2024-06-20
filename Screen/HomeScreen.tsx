@@ -3,9 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, Animated } from "react-native";
 import Button from "../components/Button";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { clearInputs } from "../store/wheelSlice";
+
+/*
+ Animated.timing:精確時間控制和線性速度的動畫效果
+ Animated.spring:有彈性和自然物理效果的動畫
+ */
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [displayText1, setDisplayText1] = useState("");
   const [displayText2, setDisplayText2] = useState("");
   const [showBtn, setShowBtn] = useState(false);
@@ -38,7 +46,6 @@ const HomeScreen = () => {
       index2++;
       if (index2 < fullText2.length) {
         time2 = setTimeout(typeWrite2, 100);
-
       } else {
         setShowBtn(true);
       }
@@ -112,7 +119,10 @@ const HomeScreen = () => {
             <Button
               text="YES!"
               color="#B5EEA7"
-              onPress={() => navigation.navigate("Yes")}
+              onPress={() => {
+                dispatch(clearInputs());
+                navigation.navigate("Yes");
+              }}
             />
           </>
         )}
