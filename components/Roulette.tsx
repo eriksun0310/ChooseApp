@@ -148,7 +148,7 @@ const Roulette: FC = () => {
               text="重新輸入"
               color="#D6F5FF"
               onPress={() => {
-                dispatch(clearInputs());
+                // dispatch(clearInputs());
                 setShowDialog(false);
                 setTimeout(() => {
                   navigation.navigate("Yes");

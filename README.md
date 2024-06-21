@@ -3,6 +3,8 @@
 ### 那就快來使用 【選擇障礙神器】, 這是一款可以幫你決定任何東西的App!
 
 
+>點選input 旁邊關閉 鍵盤
+
 >專案使用到的工具
 1. Redux Toolkit 
 2. React Native Elements
@@ -27,7 +29,7 @@
 <img src="assets/YesScreen.jpg" alt="YesScreen" width="450" height="800">
 
 ## 填入選項
-<img src="assets/YesScreen.jpg" alt="Input" width="450" height="800">
+<img src="assets/Input.jpg" alt="Input" width="450" height="800">
 
 
 ## 點下 [ + ] 選項,如果上面的選項有沒有填到的,則會跳出提示

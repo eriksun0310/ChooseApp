@@ -34,6 +34,7 @@ const Form = () => {
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
+  const flatListRef = useRef<FlatList<Input>>(null);// 創建 FlatList 的引用 
   const inputs = useSelector((state: RootState) => state.wheel.inputs);
 
   //是否顯示form
@@ -101,6 +102,11 @@ const Form = () => {
     const newID = uuidV4();
     const newInput = { id: newID, value: "", isNew: true, hasError: false };
     dispatch(addInput(newInput));
+
+    //等待 新增input 完成後滾動到底部
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   };
 
   //render 每個input
@@ -136,13 +142,14 @@ const Form = () => {
             </View>
 
             <FlatList
+              ref={flatListRef}
               data={inputs}
               renderItem={renderInputItem}
               keyExtractor={(item) => item.id}
             />
 
+            {/* 新增input */}
             <View style={styles.plusBtnContainer}>
-              {/* 按下加的時候 也要擋上一個有沒有填 */}
               <IconButton onPress={addInputHandle} size={50} />
             </View>
           </Animated.View>
@@ -151,7 +158,7 @@ const Form = () => {
         )}
       </View>
       <View style={styles.footer}>
-        {/* 按下go 的時候要擋 看input 的資料有沒有填 */}
+        {/* Go 按鈕 */}
         {showGo && (
           <Button
             text="GO!"
@@ -163,7 +170,7 @@ const Form = () => {
                 } else {
                   navigation.navigate("Roulette");
                 }
-              }else{
+              } else {
                 Alert.alert("選項不能小於2");
               }
             }}
