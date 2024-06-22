@@ -7,6 +7,8 @@ import {
   Animated,
   LayoutAnimation,
   Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import IconButton from "./IconButton";
 import FormInput from "./FormInput";
@@ -34,8 +36,11 @@ const Form = () => {
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
-  const flatListRef = useRef<FlatList<Input>>(null);// 創建 FlatList 的引用 
+  const flatListRef = useRef<FlatList<Input>>(null); // 創建 FlatList 的引用
   const inputs = useSelector((state: RootState) => state.wheel.inputs);
+
+  // 是否要關閉鍵盤
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   //是否顯示form
   const [showForm, setShowForm] = useState(true);
@@ -72,7 +77,6 @@ const Form = () => {
     let hasEmptyInput = false;
 
     inputs.forEach((input) => {
-      console.log("input", input);
       if (input.value.trim() === "") {
         hasEmptyInput = true;
         dispatch(
@@ -114,6 +118,19 @@ const Form = () => {
     <FormInput {...item} />
   );
 
+  const handlePressOutside = (event: any) => {
+    if (keyboardOpen) {
+      //判斷點擊位置是否在輸入框內
+      const isInsideInput =
+        event.target === TextInput || event.target._isTextInput;
+
+      if (!isInsideInput) {
+        Keyboard.dismiss();
+        setKeyboardOpen(false);
+      }
+    }
+  };
+
   //處理 如果沒有form, Go 按鈕則不出現
   useEffect(() => {
     if (showForm) {
@@ -130,29 +147,31 @@ const Form = () => {
     <>
       <View style={styles.content}>
         {showForm ? (
-          <Animated.View style={[styles.form, { opacity: fadeAnim }]}>
-            <View style={styles.closeBtnContainer}>
-              <IconButton
-                onPress={onClose}
-                icon="close"
-                size={35}
-                color="#ffffff"
-                backgroundColor="#F77676"
+          <TouchableWithoutFeedback onPress={handlePressOutside}>
+            <Animated.View style={[styles.form, { opacity: fadeAnim }]}>
+              <View style={styles.closeBtnContainer}>
+                <IconButton
+                  onPress={onClose}
+                  icon="close"
+                  size={35}
+                  color="#ffffff"
+                  backgroundColor="#F77676"
+                />
+              </View>
+
+              <FlatList
+                ref={flatListRef}
+                data={inputs}
+                renderItem={renderInputItem}
+                keyExtractor={(item) => item.id}
               />
-            </View>
 
-            <FlatList
-              ref={flatListRef}
-              data={inputs}
-              renderItem={renderInputItem}
-              keyExtractor={(item) => item.id}
-            />
-
-            {/* 新增input */}
-            <View style={styles.plusBtnContainer}>
-              <IconButton onPress={addInputHandle} size={50} />
-            </View>
-          </Animated.View>
+              {/* 新增input */}
+              <View style={styles.plusBtnContainer}>
+                <IconButton onPress={addInputHandle} size={50} />
+              </View>
+            </Animated.View>
+          </TouchableWithoutFeedback>
         ) : (
           <IconButton onPress={() => setShowForm(true)} />
         )}

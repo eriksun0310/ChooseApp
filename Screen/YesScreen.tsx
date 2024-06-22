@@ -1,16 +1,29 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  Keyboard,
+  StyleSheet,
+  Text,
+  TouchableNativeFeedback,
+  View,
+} from "react-native";
 import Form from "../components/Form";
 
 const YesScreen = () => {
+  //處理點擊input外 關閉鍵盤
+  const handlePressOutside = () => {
+    Keyboard.dismiss();
+  };
+
   return (
-    <View style={styles.container}>
-      <StatusBar style="auto" />
-      <View style={styles.header}>
-        <Text style={styles.title}>填入所有你選擇障礙的！</Text>
+    <TouchableNativeFeedback onPress={handlePressOutside}>
+      <View style={styles.container}>
+        <StatusBar style="auto" />
+        <View style={styles.header}>
+          <Text style={styles.title}>填入所有你選擇障礙的！</Text>
+        </View>
+        <Form />
       </View>
-      <Form />
-    </View>
+    </TouchableNativeFeedback>
   );
 };
 
